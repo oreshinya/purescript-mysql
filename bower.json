@@ -1,0 +1,32 @@
+{
+  "name": "purescript-mysql",
+  "license": "MIT",
+  "homepage": "https://github.com/oreshinya/purescript-mysql",
+  "authors": [
+    "Shinya Takahashi <s.takahashi313@gmail.com>"
+  ],
+  "description": "MySQL wrapper for PureScript",
+  "keywords": [
+    "purescript",
+    "mysql"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/oreshinya/purescript-mysql.git"
+  },
+  "moduleType": [
+    "node"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "output"
+  ],
+  "dependencies": {
+    "purescript-eff": "^3.1.0",
+    "purescript-unsafe-coerce": "^3.0.0",
+    "purescript-maybe": "^3.0.0",
+    "purescript-js-date": "^5.0.1"
+  }
+}
