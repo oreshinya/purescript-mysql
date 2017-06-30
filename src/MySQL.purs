@@ -1,4 +1,19 @@
-module MySQL where
+module MySQL
+  ( ConnectionInfo
+  , QueryOptions
+  , Connection
+  , MYSQL
+  , defaultConnectionInfo
+  , createConnection
+  , closeConnection
+  , queryWithOptions
+  , queryWithOptions_
+  , query
+  , query_
+  , execute
+  , execute_
+  , liftError
+  ) where
 
 import Prelude
 import Control.Monad.Aff (Aff, Canceler, nonCanceler)
