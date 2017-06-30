@@ -11,6 +11,7 @@ exports.createConnection = function(connectionInfo) {
 exports.closeConnection = function(connection) {
   return function() {
     connection.end();
+    return {};
   }
 }
 

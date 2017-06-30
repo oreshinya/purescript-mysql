@@ -31,21 +31,12 @@ type ConnectionInfo =
     , trace :: Boolean
     }
 
-type PoolInfo =
-  { acquireTimeout :: Int
-  , waitForConnections :: Boolean
-  , connectionLimit :: Int
-  , queueLimit :: Int
-  }
-
 type QueryOptions =
   { sql :: String
   , nestTables :: Boolean
   }
 
 foreign import data Connection :: Type
-
-foreign import data Pool :: Type
 
 foreign import data MYSQL :: Effect
 
@@ -63,16 +54,6 @@ defaultConnectionInfo =
   , connectTimeout: 10000
   , debug: false
   , trace: true
-  }
-
-
-
-defaultPoolInfo :: PoolInfo
-defaultPoolInfo =
-  { acquireTimeout: 10000
-  , waitForConnections: true
-  , connectionLimit: 10
-  , queueLimit: 0
   }
 
 
