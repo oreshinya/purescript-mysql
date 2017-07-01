@@ -5,7 +5,7 @@
   "authors": [
     "Shinya Takahashi <s.takahashi313@gmail.com>"
   ],
-  "description": "MySQL wrapper for PureScript",
+  "description": "Bindings mysql for PureScript",
   "keywords": [
     "purescript",
     "mysql"
