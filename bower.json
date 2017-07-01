@@ -38,6 +38,8 @@
     "purescript-either": "^3.1.0",
     "purescript-newtype": "^2.0.0",
     "purescript-lists": "^4.7.0",
-    "purescript-exceptions": "^3.0.0"
+    "purescript-exceptions": "^3.0.0",
+    "purescript-bifunctors": "^3.0.0",
+    "purescript-arrays": "^4.1.2"
   }
 }

@@ -20,7 +20,6 @@ import Control.Monad.Except (runExcept)
 import Data.Either (either)
 import Data.Foreign (Foreign)
 import Data.Function.Uncurried (Fn4, runFn4)
-import Data.Traversable (sequence)
 import MySQL (MYSQL, liftError)
 import MySQL.QueryValue (QueryValue)
 import MySQL.QueryResult (class QueryResult, convert)
@@ -73,7 +72,7 @@ queryWithOptions :: forall e a.
                     Aff (mysql :: MYSQL | e) (Array a)
 queryWithOptions opts vs conn = do
   rows <- runFn4 _query nonCanceler opts vs conn
-  either liftError pure $ runExcept $ sequence $ convert <$> rows
+  either liftError pure $ runExcept $ convert rows
 
 
 
@@ -135,4 +134,4 @@ foreign import closeConnection :: forall e.
 
 
 
-foreign import _query :: forall e. Fn4 (Canceler (mysql :: MYSQL | e)) QueryOptions (Array QueryValue) Connection (Aff (mysql :: MYSQL | e) (Array Foreign))
+foreign import _query :: forall e. Fn4 (Canceler (mysql :: MYSQL | e)) QueryOptions (Array QueryValue) Connection (Aff (mysql :: MYSQL | e) Foreign)
