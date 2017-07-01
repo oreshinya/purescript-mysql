@@ -11,7 +11,8 @@ import Prelude
 import Control.Monad.Aff (Aff, Canceler, nonCanceler)
 import Control.Monad.Eff (Eff)
 import Data.Function.Uncurried (Fn2, runFn2)
-import MySQL (MYSQL, ConnectionInfo, Connection)
+import MySQL (MYSQL)
+import MySQL.Connection (ConnectionInfo, Connection)
 
 
 

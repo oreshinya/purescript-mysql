@@ -7,7 +7,8 @@ import Control.Monad.Aff (Aff, Canceler, nonCanceler, attempt)
 import Control.Monad.Error.Class (throwError)
 import Data.Either (Either(..))
 import Data.Function.Uncurried (Fn2, runFn2)
-import MySQL (MYSQL, Connection)
+import MySQL (MYSQL)
+import MySQL.Connection (Connection)
 
 
 
