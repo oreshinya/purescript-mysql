@@ -3,7 +3,10 @@ module Test.Main where
 import Prelude
 import Control.Monad.Aff (Aff, runAff)
 import Control.Monad.Eff (Eff)
+import Control.Monad.Eff.Console (CONSOLE, log)
 import Control.Monad.Eff.Exception (EXCEPTION)
+import Data.Array (head)
+import Data.Maybe (Maybe(..))
 import MySQL (MYSQL)
 import MySQL.Connection (Connection, ConnectionInfo, defaultConnectionInfo, queryWithOptions, query_, execute_)
 import MySQL.Pool (defaultPoolInfo, createPool, closePool, withPool)
@@ -33,10 +36,10 @@ connectionInfo = defaultConnectionInfo { database = "purescript_mysql", debug = 
 
 
 
-main :: forall e. Eff (mysql :: MYSQL, exception :: EXCEPTION | e) Unit
+main :: forall e. Eff (console :: CONSOLE, mysql :: MYSQL, exception :: EXCEPTION | e) Unit
 main = do
   pool <- createPool connectionInfo defaultPoolInfo
-  void $ runAff (const $ closePool pool) (const $ closePool pool) do
+  void $ runAff (const $ closePool pool) (success pool) do
     flip withPool pool \conn -> do
       execute_ "TRUNCATE TABLE users" conn
       execute_ ("INSERT INTO users (id, name) VALUES ('" <> ident <> "', 'User 1')") conn
@@ -44,10 +47,11 @@ main = do
       flip withTransaction conn \c -> do
         execute_ ("INSERT INTO users (id, name) VALUES ('" <> ident2 <> "', 'User 2')") conn
         execute_ ("INSERT INTO users (id, name) VALUES ('" <> ident3 <> "', 'User 3')") conn
-      void $ selectUsers' conn
-      flip withTransaction conn \c -> do
-        execute_ ("INSERT INTO users (id, name) VALUES ('" <> ident4 <> "', 'User 4')") conn
-        execute_ ("INSERT INTO users (id, name) VALUES ('" <> ident <> "', 'User 5')") conn
+      users <- selectUsers' conn
+--      flip withTransaction conn \c -> do
+--        execute_ ("INSERT INTO users (id, name) VALUES ('" <> ident4 <> "', 'User 4')") conn
+--        execute_ ("INSERT INTO users (id, name) VALUES ('" <> ident <> "', 'User 5')") conn
+      pure users
     where
       opts =
         { sql: "SELECT * FROM users WHERE id = ?"
@@ -59,3 +63,9 @@ main = do
 
       selectUsers' :: forall eff. Connection -> Aff (mysql :: MYSQL | eff) (Array User)
       selectUsers' = query_ "SELECT * FROM users"
+
+      success pool users = do
+        case (head users) of
+          Nothing -> pure unit
+          Just user -> log $ show user
+        closePool pool
