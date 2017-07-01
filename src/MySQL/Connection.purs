@@ -35,6 +35,7 @@ type ConnectionInfo =
     , charset :: String
     , timezone :: String
     , connectTimeout :: Int
+    , dateStrings :: Boolean
     , debug :: Boolean
     , trace :: Boolean
     }
@@ -58,6 +59,7 @@ defaultConnectionInfo =
   , charset: "UTF8_GENERAL_CI"
   , timezone: "Z"
   , connectTimeout: 10000
+  , dateStrings: true
   , debug: false
   , trace: true
   }
