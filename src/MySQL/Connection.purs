@@ -9,6 +9,7 @@ module MySQL.Connection
   , query_
   , execute
   , execute_
+  , format
   , createConnection
   , closeConnection
   ) where
@@ -137,3 +138,5 @@ foreign import closeConnection :: forall e.
 
 
 foreign import _query :: forall e. Fn4 (Canceler (mysql :: MYSQL | e)) QueryOptions (Array QueryValue) Connection (Aff (mysql :: MYSQL | e) Foreign)
+
+foreign import format :: String -> (Array QueryValue) -> Connection -> String
