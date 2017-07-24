@@ -27,3 +27,11 @@ exports._query = function(canceler, opts, values, conn) {
     return canceler;
   }
 }
+
+exports.format = function(query) {
+  return function(values) {
+    return function(conn) {
+      return conn.format(query, values)
+    }
+  }
+}
