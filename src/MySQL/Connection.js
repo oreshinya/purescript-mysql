@@ -31,7 +31,7 @@ exports._query = function(canceler, opts, values, conn) {
 exports.format = function(query) {
   return function(values) {
     return function(conn) {
-      return conn.format(query, values)
+      return conn.format(query, values);
     }
   }
 }
