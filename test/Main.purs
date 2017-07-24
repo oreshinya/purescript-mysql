@@ -2,13 +2,14 @@ module Test.Main where
 
 import Prelude
 import Control.Monad.Aff (Aff, runAff)
+import Control.Monad.Aff.Console as AC
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (CONSOLE, log)
 import Control.Monad.Eff.Exception (EXCEPTION)
 import Data.Array (head)
 import Data.Maybe (Maybe(..))
 import MySQL (MYSQL)
-import MySQL.Connection (Connection, ConnectionInfo, defaultConnectionInfo, queryWithOptions, query_, execute_)
+import MySQL.Connection (Connection, ConnectionInfo, defaultConnectionInfo, queryWithOptions, query_, execute_, format)
 import MySQL.Pool (defaultPoolInfo, createPool, closePool, withPool)
 import MySQL.QueryValue (toQueryValue)
 import MySQL.Transaction (withTransaction)
@@ -51,6 +52,7 @@ main = do
 --      flip withTransaction conn \c -> do
 --        execute_ ("INSERT INTO users (id, name) VALUES ('" <> ident4 <> "', 'User 4')") conn
 --        execute_ ("INSERT INTO users (id, name) VALUES ('" <> ident <> "', 'User 5')") conn
+      AC.log $ format "INSERT INTO users (id, name) VALUES (?, ?)" [ toQueryValue ident, toQueryValue "User 6"] conn
       pure users
     where
       opts =
