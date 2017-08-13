@@ -39,6 +39,7 @@ type ConnectionInfo =
     , dateStrings :: Boolean
     , debug :: Boolean
     , trace :: Boolean
+    , multipleStatements :: Boolean
     }
 
 type QueryOptions =
@@ -63,6 +64,7 @@ defaultConnectionInfo =
   , dateStrings: true
   , debug: false
   , trace: true
+  , multipleStatements : false
   }
 
 
