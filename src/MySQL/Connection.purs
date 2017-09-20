@@ -15,14 +15,15 @@ module MySQL.Connection
   ) where
 
 import Prelude
+
 import Control.Monad.Aff (Aff, Canceler, nonCanceler)
 import Control.Monad.Eff (Eff, kind Effect)
 import Control.Monad.Except (runExcept)
 import Data.Either (either)
 import Data.Foreign (Foreign)
-import Data.Foreign.Class (class Decode, decode)
 import Data.Function.Uncurried (Fn4, runFn4)
 import MySQL (MYSQL, liftError)
+import MySQL.QueryResult (class QueryResult, readResult)
 import MySQL.QueryValue (QueryValue)
 
 
@@ -70,19 +71,19 @@ defaultConnectionInfo =
 
 
 queryWithOptions :: forall e a.
-                    Decode a =>
+                    QueryResult a =>
                     QueryOptions ->
                     Array QueryValue ->
                     Connection ->
                     Aff (mysql :: MYSQL | e) (Array a)
 queryWithOptions opts vs conn = do
   rows <- runFn4 _query nonCanceler opts vs conn
-  either liftError pure $ runExcept $ decode rows
+  either liftError pure $ runExcept $ readResult rows
 
 
 
 queryWithOptions_ :: forall e a.
-                     Decode a =>
+                     QueryResult a =>
                      QueryOptions ->
                      Connection ->
                      Aff (mysql :: MYSQL | e) (Array a)
@@ -91,7 +92,7 @@ queryWithOptions_ opts = queryWithOptions opts []
 
 
 query :: forall e a.
-         Decode a =>
+         QueryResult a =>
          String ->
          Array QueryValue ->
          Connection ->
@@ -101,7 +102,7 @@ query sql = queryWithOptions { sql, nestTables: false }
 
 
 query_ :: forall e a.
-          Decode a =>
+          QueryResult a =>
           String ->
           Connection ->
           Aff (mysql :: MYSQL | e) (Array a)
