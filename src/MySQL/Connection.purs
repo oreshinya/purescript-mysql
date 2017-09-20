@@ -70,73 +70,81 @@ defaultConnectionInfo =
 
 
 
-queryWithOptions :: forall e a.
-                    QueryResult a =>
-                    QueryOptions ->
-                    Array QueryValue ->
-                    Connection ->
-                    Aff (mysql :: MYSQL | e) (Array a)
+queryWithOptions
+  :: forall e a
+   . QueryResult a
+  => QueryOptions
+  -> Array QueryValue
+  -> Connection
+  -> Aff (mysql :: MYSQL | e) (Array a)
 queryWithOptions opts vs conn = do
   rows <- runFn4 _query nonCanceler opts vs conn
   either liftError pure $ runExcept $ readResult rows
 
 
 
-queryWithOptions_ :: forall e a.
-                     QueryResult a =>
-                     QueryOptions ->
-                     Connection ->
-                     Aff (mysql :: MYSQL | e) (Array a)
+queryWithOptions_
+  :: forall e a
+   . QueryResult a
+  => QueryOptions
+  -> Connection
+  -> Aff (mysql :: MYSQL | e) (Array a)
 queryWithOptions_ opts = queryWithOptions opts []
 
 
 
-query :: forall e a.
-         QueryResult a =>
-         String ->
-         Array QueryValue ->
-         Connection ->
-         Aff (mysql :: MYSQL | e) (Array a)
+query
+  :: forall e a
+   . QueryResult a
+  => String
+  -> Array QueryValue
+  -> Connection
+  -> Aff (mysql :: MYSQL | e) (Array a)
 query sql = queryWithOptions { sql, nestTables: false }
 
 
 
-query_ :: forall e a.
-          QueryResult a =>
-          String ->
-          Connection ->
-          Aff (mysql :: MYSQL | e) (Array a)
+query_
+  :: forall e a
+   . QueryResult a
+  => String
+  -> Connection
+  -> Aff (mysql :: MYSQL | e) (Array a)
 query_ sql = query sql []
 
 
 
-execute :: forall e.
-           String ->
-           Array QueryValue ->
-           Connection ->
-           Aff (mysql :: MYSQL | e) Unit
+execute
+  :: forall e
+   . String
+  -> Array QueryValue
+  -> Connection
+  -> Aff (mysql :: MYSQL | e) Unit
 execute sql vs conn =
   void $ runFn4 _query nonCanceler { sql, nestTables: false } vs conn
 
 
 
-execute_ :: forall e.
-            String ->
-            Connection ->
-            Aff (mysql :: MYSQL | e) Unit
+execute_
+  :: forall e
+   . String
+  -> Connection
+  -> Aff (mysql :: MYSQL | e) Unit
 execute_ sql = execute sql []
 
 
 
-foreign import createConnection :: forall e.
-                                   ConnectionInfo ->
-                                   Eff (mysql :: MYSQL | e) Connection
+foreign import createConnection
+  :: forall e
+   . ConnectionInfo
+  -> Eff (mysql :: MYSQL | e) Connection
 
 
 
-foreign import closeConnection :: forall e.
-                                  Connection ->
-                                  Eff (mysql :: MYSQL | e) Unit
+foreign import closeConnection
+  :: forall e
+   . Connection
+  -> Eff (mysql :: MYSQL | e) Unit
 
 
 

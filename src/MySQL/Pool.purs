@@ -52,10 +52,11 @@ releaseConnection = runFn2 _releaseConnection nonCanceler
 
 
 
-withPool :: forall e a.
-            (Connection -> Aff (mysql :: MYSQL | e) a) ->
-            Pool ->
-            Aff (mysql :: MYSQL | e) a
+withPool
+  :: forall e a
+   . (Connection -> Aff (mysql :: MYSQL | e) a)
+  -> Pool
+  -> Aff (mysql :: MYSQL | e) a
 withPool handler pool = do
   conn <- getConnection pool
   r <- handler conn

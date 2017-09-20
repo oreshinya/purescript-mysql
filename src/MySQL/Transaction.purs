@@ -12,10 +12,11 @@ import MySQL.Connection (Connection)
 
 
 
-withTransaction :: forall e a.
-                   (Connection -> Aff (mysql :: MYSQL | e) a) ->
-                   Connection ->
-                   Aff (mysql :: MYSQL | e) a
+withTransaction
+  :: forall e a
+   . (Connection -> Aff (mysql :: MYSQL | e) a)
+  -> Connection
+  -> Aff (mysql :: MYSQL | e) a
 withTransaction handler conn = do
   begin conn
   r <- attempt $ handler conn
