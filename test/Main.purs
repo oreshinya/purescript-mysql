@@ -7,6 +7,7 @@ import Control.Monad.Aff.Console as AC
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (CONSOLE, log)
 import Control.Monad.Eff.Exception (EXCEPTION, message)
+import Data.Either (Either(..))
 import MySQL (MYSQL)
 import MySQL.Connection (Connection, ConnectionInfo, defaultConnectionInfo, queryWithOptions, query_, execute_, format)
 import MySQL.Pool (closePool, createPool, defaultPoolInfo, withPool)
@@ -38,7 +39,7 @@ connectionInfo = defaultConnectionInfo { database = "purescript_mysql", debug = 
 main :: forall e. Eff (console :: CONSOLE, mysql :: MYSQL, exception :: EXCEPTION | e) Unit
 main = do
   pool <- createPool connectionInfo defaultPoolInfo
-  void $ runAff (error pool) (success pool) do
+  void $ runAff (callback pool) do
     flip withPool pool \conn -> do
       execute_ "TRUNCATE TABLE users" conn
       execute_ ("INSERT INTO users (id, name) VALUES ('" <> ident <> "', 'User 1')") conn
@@ -64,11 +65,11 @@ main = do
       selectUsers' :: forall eff. Connection -> Aff (mysql :: MYSQL | eff) (Array User)
       selectUsers' = query_ "SELECT * FROM users"
 
-      error pool err = do
+      callback pool (Left err) = do
         log ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
         log $ message err
         closePool pool
 
-      success pool users = do
+      callback pool (Right users) = do
         log $ show users
         closePool pool

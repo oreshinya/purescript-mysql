@@ -15,16 +15,18 @@ exports.closeConnection = function(connection) {
   }
 }
 
-exports._query = function(canceler, opts, values, conn) {
-  return function(success, error) {
+exports["_query'"] = function(opts, values, conn) {
+  return function(onError, onSuccess) {
     conn.query(opts, values, function(e, r) {
       if (e) {
-        error(e);
+        onError(e);
       } else {
-        success(r);
+        onSuccess(r);
       }
     });
-    return canceler;
+    return function(cancelError, onCancelerError, onCancelerSuccess) {
+      onCancelerSuccess({});
+    }
   }
 }
 

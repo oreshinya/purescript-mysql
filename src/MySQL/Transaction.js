@@ -1,36 +1,42 @@
 'use strict';
 
-exports._begin = function(canceler, conn) {
-  return function(success, error) {
+exports._begin = function(conn) {
+  return function(onError, onSuccess) {
     conn.beginTransaction(function(e) {
       if (e) {
-        error(e);
+        onError(e);
       } else {
-        success({});
+        onSuccess({});
       }
     });
-    return canceler;
+    return function(cancelError, onCancelerError, onCancelerSuccess) {
+      onCancelerSuccess({});
+    }
   }
 }
 
-exports._commit = function(canceler, conn) {
-  return function(success, error) {
+exports._commit = function(conn) {
+  return function(onError, onSuccess) {
     conn.commit(function(e){
       if (e) {
-        error(e);
+        onError(e);
       } else {
-        success({});
+        onSuccess({});
       }
     });
-    return canceler;
+    return function(cancelError, onCancelerError, onCancelerSuccess) {
+      onCancelerSuccess({});
+    }
   }
 }
 
-exports._rollback = function(canceler, conn) {
-  return function(success) {
+exports._rollback = function(conn) {
+  return function(onError, onSuccess) {
     conn.rollback(function() {
-      success({});
+      onSuccess({});
     });
-    return canceler;
+    return function(cancelError, onCancelerError, onCancelerSuccess) {
+      onCancelerSuccess({});
+    }
   }
 }

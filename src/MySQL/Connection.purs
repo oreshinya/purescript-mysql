@@ -16,12 +16,13 @@ module MySQL.Connection
 
 import Prelude
 
-import Control.Monad.Aff (Aff, Canceler, nonCanceler)
+import Control.Monad.Aff (Aff)
+import Control.Monad.Aff.Compat (EffFnAff, fromEffFnAff)
 import Control.Monad.Eff (Eff, kind Effect)
 import Control.Monad.Except (runExcept)
 import Data.Either (either)
 import Data.Foreign (Foreign)
-import Data.Function.Uncurried (Fn4, runFn4)
+import Data.Function.Uncurried (Fn3, runFn3)
 import MySQL (MYSQL, liftError)
 import MySQL.QueryResult (class QueryResult, readResult)
 import MySQL.QueryValue (QueryValue)
@@ -78,7 +79,7 @@ queryWithOptions
   -> Connection
   -> Aff (mysql :: MYSQL | e) (Array a)
 queryWithOptions opts vs conn = do
-  rows <- runFn4 _query nonCanceler opts vs conn
+  rows <- _query opts vs conn
   either liftError pure $ runExcept $ readResult rows
 
 
@@ -121,7 +122,7 @@ execute
   -> Connection
   -> Aff (mysql :: MYSQL | e) Unit
 execute sql vs conn =
-  void $ runFn4 _query nonCanceler { sql, nestTables: false } vs conn
+  void $ _query { sql, nestTables: false } vs conn
 
 
 
@@ -131,6 +132,16 @@ execute_
   -> Connection
   -> Aff (mysql :: MYSQL | e) Unit
 execute_ sql = execute sql []
+
+
+
+_query
+  :: forall e
+   . QueryOptions
+  -> Array QueryValue
+  -> Connection
+  -> Aff (mysql :: MYSQL | e) Foreign
+_query opts values conn = fromEffFnAff $ runFn3 _query' opts values conn
 
 
 
@@ -148,6 +159,10 @@ foreign import closeConnection
 
 
 
-foreign import _query :: forall e. Fn4 (Canceler (mysql :: MYSQL | e)) QueryOptions (Array QueryValue) Connection (Aff (mysql :: MYSQL | e) Foreign)
+foreign import _query'
+  :: forall e
+   . Fn3 QueryOptions (Array QueryValue) Connection (EffFnAff (mysql :: MYSQL | e) Foreign)
+
+
 
 foreign import format :: String -> (Array QueryValue) -> Connection -> String

@@ -3,10 +3,11 @@ module MySQL.Transaction
   ) where
 
 import Prelude
-import Control.Monad.Aff (Aff, Canceler, nonCanceler, attempt)
+
+import Control.Monad.Aff (Aff, attempt)
+import Control.Monad.Aff.Compat (EffFnAff, fromEffFnAff)
 import Control.Monad.Error.Class (throwError)
 import Data.Either (Either(..))
-import Data.Function.Uncurried (Fn2, runFn2)
 import MySQL (MYSQL)
 import MySQL.Connection (Connection)
 
@@ -31,26 +32,26 @@ withTransaction handler conn = do
 
 
 begin :: forall e. Connection -> Aff (mysql :: MYSQL | e) Unit
-begin = runFn2 _begin nonCanceler
+begin = fromEffFnAff <<< _begin
 
 
 
 commit :: forall e. Connection -> Aff (mysql :: MYSQL | e) Unit
-commit = runFn2 _commit nonCanceler
+commit = fromEffFnAff <<< _commit
 
 
 
 rollback :: forall e. Connection -> Aff (mysql :: MYSQL | e) Unit
-rollback = runFn2 _rollback nonCanceler
+rollback = fromEffFnAff <<< _rollback
 
 
 
-foreign import _begin :: forall e. Fn2 (Canceler (mysql :: MYSQL | e)) Connection (Aff (mysql :: MYSQL | e) Unit)
+foreign import _begin :: forall e. Connection  -> EffFnAff (mysql :: MYSQL | e) Unit
 
 
 
-foreign import _commit :: forall e. Fn2 (Canceler (mysql :: MYSQL | e)) Connection (Aff (mysql :: MYSQL | e) Unit)
+foreign import _commit :: forall e. Connection -> EffFnAff (mysql :: MYSQL | e) Unit
 
 
 
-foreign import _rollback :: forall e. Fn2 (Canceler (mysql :: MYSQL | e)) Connection (Aff (mysql :: MYSQL | e) Unit)
+foreign import _rollback :: forall e. Connection -> EffFnAff (mysql :: MYSQL | e) Unit

@@ -8,7 +8,9 @@ module MySQL.Pool
   ) where
 
 import Prelude
-import Control.Monad.Aff (Aff, Canceler, nonCanceler)
+
+import Control.Monad.Aff (Aff)
+import Control.Monad.Aff.Compat (EffFnAff, fromEffFnAff)
 import Control.Monad.Eff (Eff)
 import Data.Function.Uncurried (Fn2, runFn2)
 import MySQL (MYSQL)
@@ -43,12 +45,12 @@ createPool = runFn2 _createPool
 
 
 getConnection :: forall e. Pool -> Aff (mysql :: MYSQL | e) Connection
-getConnection = runFn2 _getConnection nonCanceler
+getConnection = fromEffFnAff <<< _getConnection
 
 
 
 releaseConnection :: forall e. Connection -> Aff (mysql :: MYSQL | e) Unit
-releaseConnection = runFn2 _releaseConnection nonCanceler
+releaseConnection = fromEffFnAff <<< _releaseConnection
 
 
 
@@ -73,8 +75,8 @@ foreign import closePool :: forall e. Pool -> Eff (mysql :: MYSQL | e) Unit
 
 
 
-foreign import _getConnection :: forall e. Fn2 (Canceler (mysql :: MYSQL | e)) Pool (Aff (mysql :: MYSQL | e) Connection)
+foreign import _getConnection :: forall e. Pool -> EffFnAff (mysql :: MYSQL | e) Connection
 
 
 
-foreign import _releaseConnection :: forall e. Fn2 (Canceler (mysql :: MYSQL | e)) Connection (Aff (mysql :: MYSQL | e) Unit)
+foreign import _releaseConnection :: forall e. Connection -> EffFnAff (mysql :: MYSQL | e) Unit

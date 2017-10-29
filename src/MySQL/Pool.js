@@ -20,23 +20,27 @@ exports.closePool = function(pool) {
   }
 }
 
-exports._getConnection = function(canceler, pool) {
-  return function(success, error) {
+exports._getConnection = function(pool) {
+  return function(onError, onSuccess) {
     pool.getConnection(function(e, conn) {
       if (e) {
-        error(e);
+        onError(e);
       } else {
-        success(conn);
+        onSuccess(conn);
       }
     });
-    return canceler;
+    return function(cancelError, onCancelerError, onCancelerSuccess) {
+      onCancelerSuccess({});
+    }
   }
 }
 
-exports._releaseConnection = function(canceler, conn) {
-  return function(success) {
+exports._releaseConnection = function(conn) {
+  return function(onError, onSuccess) {
     conn.release();
-    success({});
-    return canceler;
+    onSuccess({});
+    return function(cancelError, onCancelerError, onCancelerSuccess) {
+      onCancelerSuccess({});
+    }
   }
 }
