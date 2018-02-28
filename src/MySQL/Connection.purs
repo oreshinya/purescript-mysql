@@ -24,8 +24,8 @@ import Data.Either (either)
 import Data.Foreign (Foreign)
 import Data.Function.Uncurried (Fn3, runFn3)
 import MySQL (MYSQL, liftError)
-import MySQL.QueryResult (class QueryResult, readResult)
 import MySQL.QueryValue (QueryValue)
+import Simple.JSON (class ReadForeign, read)
 
 
 
@@ -73,20 +73,20 @@ defaultConnectionInfo =
 
 queryWithOptions
   :: forall e a
-   . QueryResult a
+   . ReadForeign a
   => QueryOptions
   -> Array QueryValue
   -> Connection
   -> Aff (mysql :: MYSQL | e) (Array a)
 queryWithOptions opts vs conn = do
   rows <- _query opts vs conn
-  either liftError pure $ runExcept $ readResult rows
+  either liftError pure $ runExcept $ read rows
 
 
 
 queryWithOptions_
   :: forall e a
-   . QueryResult a
+   . ReadForeign a
   => QueryOptions
   -> Connection
   -> Aff (mysql :: MYSQL | e) (Array a)
@@ -96,7 +96,7 @@ queryWithOptions_ opts = queryWithOptions opts []
 
 query
   :: forall e a
-   . QueryResult a
+   . ReadForeign a
   => String
   -> Array QueryValue
   -> Connection
@@ -107,7 +107,7 @@ query sql = queryWithOptions { sql, nestTables: false }
 
 query_
   :: forall e a
-   . QueryResult a
+   . ReadForeign a
   => String
   -> Connection
   -> Aff (mysql :: MYSQL | e) (Array a)

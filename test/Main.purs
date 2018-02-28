@@ -13,7 +13,19 @@ import MySQL.Connection (Connection, ConnectionInfo, defaultConnectionInfo, quer
 import MySQL.Pool (closePool, createPool, defaultPoolInfo, withPool)
 import MySQL.QueryValue (toQueryValue)
 import MySQL.Transaction (withTransaction)
-import Test.Types (User)
+
+
+
+type User =
+  { id :: String
+  , name :: String
+  , createdAt :: String
+  , updatedAt :: String
+  }
+
+
+
+foreign import unsafeLog :: forall a e. a -> Eff e Unit
 
 
 
@@ -71,5 +83,5 @@ main = do
         closePool pool
 
       callback pool (Right users) = do
-        log $ show users
+        unsafeLog users
         closePool pool

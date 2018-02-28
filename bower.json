@@ -26,6 +26,6 @@
   "dependencies": {
     "purescript-js-date": "^5.1.0",
     "purescript-aff": "^4.0.0",
-    "purescript-foreign-generic": "^5.0.0"
+    "purescript-simple-json": "^1.1.0"
   }
 }
