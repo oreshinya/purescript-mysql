@@ -19,7 +19,6 @@ import Prelude
 import Control.Monad.Aff (Aff)
 import Control.Monad.Aff.Compat (EffFnAff, fromEffFnAff)
 import Control.Monad.Eff (Eff, kind Effect)
-import Control.Monad.Except (runExcept)
 import Data.Either (either)
 import Data.Foreign (Foreign)
 import Data.Function.Uncurried (Fn3, runFn3)
@@ -80,7 +79,7 @@ queryWithOptions
   -> Aff (mysql :: MYSQL | e) (Array a)
 queryWithOptions opts vs conn = do
   rows <- _query opts vs conn
-  either liftError pure $ runExcept $ read rows
+  either liftError pure  $ read rows
 
 
 
