@@ -4,20 +4,19 @@ module MySQL.Transaction
 
 import Prelude
 
-import Control.Monad.Aff (Aff, attempt)
-import Control.Monad.Aff.Compat (EffFnAff, fromEffFnAff)
+import Effect.Aff (Aff, attempt)
+import Effect.Aff.Compat (EffectFnAff, fromEffectFnAff)
 import Control.Monad.Error.Class (throwError)
 import Data.Either (Either(..))
-import MySQL (MYSQL)
 import MySQL.Connection (Connection)
 
 
 
 withTransaction
-  :: forall e a
-   . (Connection -> Aff (mysql :: MYSQL | e) a)
+  :: forall a
+   . (Connection -> Aff a)
   -> Connection
-  -> Aff (mysql :: MYSQL | e) a
+  -> Aff a
 withTransaction handler conn = do
   begin conn
   r <- attempt $ handler conn
@@ -31,27 +30,27 @@ withTransaction handler conn = do
 
 
 
-begin :: forall e. Connection -> Aff (mysql :: MYSQL | e) Unit
-begin = fromEffFnAff <<< _begin
+begin :: Connection -> Aff Unit
+begin = fromEffectFnAff <<< _begin
 
 
 
-commit :: forall e. Connection -> Aff (mysql :: MYSQL | e) Unit
-commit = fromEffFnAff <<< _commit
+commit :: Connection -> Aff Unit
+commit = fromEffectFnAff <<< _commit
 
 
 
-rollback :: forall e. Connection -> Aff (mysql :: MYSQL | e) Unit
-rollback = fromEffFnAff <<< _rollback
+rollback :: Connection -> Aff Unit
+rollback = fromEffectFnAff <<< _rollback
 
 
 
-foreign import _begin :: forall e. Connection  -> EffFnAff (mysql :: MYSQL | e) Unit
+foreign import _begin :: Connection -> EffectFnAff Unit
 
 
 
-foreign import _commit :: forall e. Connection -> EffFnAff (mysql :: MYSQL | e) Unit
+foreign import _commit :: Connection -> EffectFnAff Unit
 
 
 
-foreign import _rollback :: forall e. Connection -> EffFnAff (mysql :: MYSQL | e) Unit
+foreign import _rollback :: Connection -> EffectFnAff Unit

@@ -9,11 +9,10 @@ module MySQL.Pool
 
 import Prelude
 
-import Control.Monad.Aff (Aff)
-import Control.Monad.Aff.Compat (EffFnAff, fromEffFnAff)
-import Control.Monad.Eff (Eff)
+import Effect (Effect)
+import Effect.Aff (Aff)
+import Effect.Aff.Compat (EffectFnAff, fromEffectFnAff)
 import Data.Function.Uncurried (Fn2, runFn2)
-import MySQL (MYSQL)
 import MySQL.Connection (ConnectionInfo, Connection)
 
 
@@ -39,26 +38,26 @@ defaultPoolInfo =
 
 
 
-createPool :: forall e. ConnectionInfo -> PoolInfo -> Eff (mysql :: MYSQL | e) Pool
+createPool :: ConnectionInfo -> PoolInfo -> Effect Pool
 createPool = runFn2 _createPool
 
 
 
-getConnection :: forall e. Pool -> Aff (mysql :: MYSQL | e) Connection
-getConnection = fromEffFnAff <<< _getConnection
+getConnection :: Pool -> Aff Connection
+getConnection = fromEffectFnAff <<< _getConnection
 
 
 
-releaseConnection :: forall e. Connection -> Aff (mysql :: MYSQL | e) Unit
-releaseConnection = fromEffFnAff <<< _releaseConnection
+releaseConnection :: Connection -> Aff Unit
+releaseConnection = fromEffectFnAff <<< _releaseConnection
 
 
 
 withPool
-  :: forall e a
-   . (Connection -> Aff (mysql :: MYSQL | e) a)
+  :: forall a
+   . (Connection -> Aff a)
   -> Pool
-  -> Aff (mysql :: MYSQL | e) a
+  -> Aff a
 withPool handler pool = do
   conn <- getConnection pool
   r <- handler conn
@@ -67,16 +66,16 @@ withPool handler pool = do
 
 
 
-foreign import _createPool :: forall e. Fn2 ConnectionInfo PoolInfo (Eff (mysql :: MYSQL | e) Pool)
+foreign import _createPool :: Fn2 ConnectionInfo PoolInfo (Effect Pool)
 
 
 
-foreign import closePool :: forall e. Pool -> Eff (mysql :: MYSQL | e) Unit
+foreign import closePool :: Pool -> Effect Unit
 
 
 
-foreign import _getConnection :: forall e. Pool -> EffFnAff (mysql :: MYSQL | e) Connection
+foreign import _getConnection :: Pool -> EffectFnAff Connection
 
 
 
-foreign import _releaseConnection :: forall e. Connection -> EffFnAff (mysql :: MYSQL | e) Unit
+foreign import _releaseConnection :: Connection -> EffectFnAff Unit

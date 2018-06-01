@@ -2,13 +2,11 @@ module Test.Main where
 
 import Prelude
 
-import Control.Monad.Aff (Aff, runAff)
-import Control.Monad.Aff.Console as AC
-import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Console (CONSOLE, log)
-import Control.Monad.Eff.Exception (EXCEPTION, message)
+import Effect (Effect)
+import Effect.Aff (Aff, runAff)
+import Effect.Class.Console (log)
+import Effect.Exception (message)
 import Data.Either (Either(..))
-import MySQL (MYSQL)
 import MySQL.Connection (Connection, ConnectionInfo, defaultConnectionInfo, queryWithOptions, query_, execute_, format)
 import MySQL.Pool (closePool, createPool, defaultPoolInfo, withPool)
 import MySQL.QueryValue (toQueryValue)
@@ -25,7 +23,7 @@ type User =
 
 
 
-foreign import unsafeLog :: forall a e. a -> Eff e Unit
+foreign import unsafeLog :: forall a. a -> Effect Unit
 
 
 
@@ -48,7 +46,7 @@ connectionInfo = defaultConnectionInfo { database = "purescript_mysql", debug = 
 
 
 
-main :: forall e. Eff (console :: CONSOLE, mysql :: MYSQL, exception :: EXCEPTION | e) Unit
+main :: Effect Unit
 main = do
   pool <- createPool connectionInfo defaultPoolInfo
   void $ runAff (callback pool) do
@@ -63,7 +61,7 @@ main = do
       --flip withTransaction conn \c -> do
       --  execute_ ("INSERT INTO users (id, name) VALUES ('" <> ident4 <> "', 'User 4')") conn
       --  execute_ ("INSERT INTO users (id, name) VALUES ('" <> ident <> "', 'User 5')") conn
-      AC.log $ format "INSERT INTO users (id, name) VALUES (?, ?)" [ toQueryValue ident, toQueryValue "User 6"] conn
+      log $ format "INSERT INTO users (id, name) VALUES (?, ?)" [ toQueryValue ident, toQueryValue "User 6"] conn
       pure users
     where
       opts =
@@ -71,10 +69,10 @@ main = do
         , nestTables: false
         }
 
-      selectUsers :: forall eff. Connection -> Aff (mysql :: MYSQL | eff) (Array User)
+      selectUsers :: Connection -> Aff (Array User)
       selectUsers = queryWithOptions opts [ toQueryValue ident ]
 
-      selectUsers' :: forall eff. Connection -> Aff (mysql :: MYSQL | eff) (Array User)
+      selectUsers' :: Connection -> Aff (Array User)
       selectUsers' = query_ "SELECT * FROM users"
 
       callback pool (Left err) = do

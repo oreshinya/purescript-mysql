@@ -16,13 +16,13 @@ module MySQL.Connection
 
 import Prelude
 
-import Control.Monad.Aff (Aff)
-import Control.Monad.Aff.Compat (EffFnAff, fromEffFnAff)
-import Control.Monad.Eff (Eff, kind Effect)
+import Effect (Effect)
+import Effect.Aff (Aff)
+import Effect.Aff.Compat (EffectFnAff, fromEffectFnAff)
 import Data.Either (either)
-import Data.Foreign (Foreign)
 import Data.Function.Uncurried (Fn3, runFn3)
-import MySQL (MYSQL, liftError)
+import Foreign (Foreign)
+import MySQL.Internal (liftError)
 import MySQL.QueryValue (QueryValue)
 import Simple.JSON (class ReadForeign, read)
 
@@ -71,12 +71,12 @@ defaultConnectionInfo =
 
 
 queryWithOptions
-  :: forall e a
+  :: forall a
    . ReadForeign a
   => QueryOptions
   -> Array QueryValue
   -> Connection
-  -> Aff (mysql :: MYSQL | e) (Array a)
+  -> Aff (Array a)
 queryWithOptions opts vs conn = do
   rows <- _query opts vs conn
   either liftError pure  $ read rows
@@ -84,83 +84,77 @@ queryWithOptions opts vs conn = do
 
 
 queryWithOptions_
-  :: forall e a
+  :: forall a
    . ReadForeign a
   => QueryOptions
   -> Connection
-  -> Aff (mysql :: MYSQL | e) (Array a)
+  -> Aff (Array a)
 queryWithOptions_ opts = queryWithOptions opts []
 
 
 
 query
-  :: forall e a
+  :: forall a
    . ReadForeign a
   => String
   -> Array QueryValue
   -> Connection
-  -> Aff (mysql :: MYSQL | e) (Array a)
+  -> Aff (Array a)
 query sql = queryWithOptions { sql, nestTables: false }
 
 
 
 query_
-  :: forall e a
+  :: forall a
    . ReadForeign a
   => String
   -> Connection
-  -> Aff (mysql :: MYSQL | e) (Array a)
+  -> Aff (Array a)
 query_ sql = query sql []
 
 
 
 execute
-  :: forall e
-   . String
+  :: String
   -> Array QueryValue
   -> Connection
-  -> Aff (mysql :: MYSQL | e) Unit
+  -> Aff Unit
 execute sql vs conn =
   void $ _query { sql, nestTables: false } vs conn
 
 
 
 execute_
-  :: forall e
-   . String
+  :: String
   -> Connection
-  -> Aff (mysql :: MYSQL | e) Unit
+  -> Aff Unit
 execute_ sql = execute sql []
 
 
 
 _query
-  :: forall e
-   . QueryOptions
+  :: QueryOptions
   -> Array QueryValue
   -> Connection
-  -> Aff (mysql :: MYSQL | e) Foreign
-_query opts values conn = fromEffFnAff $ runFn3 _query' opts values conn
+  -> Aff Foreign
+_query opts values conn = fromEffectFnAff $ runFn3 _query' opts values conn
 
 
 
 foreign import createConnection
-  :: forall e
-   . ConnectionInfo
-  -> Eff (mysql :: MYSQL | e) Connection
+  :: ConnectionInfo
+  -> Effect Connection
 
 
 
 foreign import closeConnection
-  :: forall e
-   . Connection
-  -> Eff (mysql :: MYSQL | e) Unit
+  :: Connection
+  -> Effect Unit
 
 
 
 foreign import _query'
-  :: forall e
-   . Fn3 QueryOptions (Array QueryValue) Connection (EffFnAff (mysql :: MYSQL | e) Foreign)
+  :: Fn3 QueryOptions (Array QueryValue) Connection (EffectFnAff Foreign)
 
 
 

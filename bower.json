@@ -24,8 +24,9 @@
     "output"
   ],
   "dependencies": {
-    "purescript-js-date": "^5.1.0",
-    "purescript-aff": "^4.0.0",
-    "purescript-simple-json": "^2.0.1"
+    "purescript-js-date": "^6.0.0",
+    "purescript-aff": "^5.0.0",
+    "purescript-simple-json": "^4.0.0",
+    "purescript-console": "^4.1.0"
   }
 }
