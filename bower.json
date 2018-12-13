@@ -25,10 +25,10 @@
   ],
   "dependencies": {
     "purescript-js-date": "^6.0.0",
-    "purescript-aff": "^5.0.0",
-    "purescript-simple-json": "^4.0.0"
+    "purescript-aff": "^5.0.2",
+    "purescript-simple-json": "^4.4.0"
   },
   "devDependencies": {
-    "purescript-console": "^4.1.0"
+    "purescript-console": "^4.2.0"
   }
 }
