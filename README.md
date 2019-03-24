@@ -5,19 +5,33 @@
 Bindings [mysql](https://github.com/mysqljs/mysql) for PureScript.
 
 ## Installation
+
 ```
-npm install mysql
-bower install purescript-mysql
+$ npm install mysql
+```
+
+### Bower
+
+```
+$ bower install purescript-mysql
+```
+
+### Spago
+
+```
+$ spago install mysql
 ```
 
 ## Test
 
 ### Setup DB
+
 ```
 mysql -uroot < migration.sql
 ```
 
 ### Run tests
+
 ```
 npm run pulp:test
 ```
