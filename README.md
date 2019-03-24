@@ -6,6 +6,7 @@ Bindings [mysql](https://github.com/mysqljs/mysql) for PureScript.
 
 ## Installation
 
+### Prerequisite
 ```
 $ npm install mysql
 ```
