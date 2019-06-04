@@ -34,7 +34,7 @@ mysql -uroot < migration.sql
 ### Run tests
 
 ```
-npm run pulp:test
+npm test
 ```
 
 ## Documentation
