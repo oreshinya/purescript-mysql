@@ -26,8 +26,6 @@ import MySQL.Internal (liftError)
 import MySQL.QueryValue (QueryValue)
 import Simple.JSON (class ReadForeign, read)
 
-
-
 type ConnectionInfo =
     { host :: String
     , port :: Int
@@ -50,8 +48,6 @@ type QueryOptions =
 
 foreign import data Connection :: Type
 
-
-
 defaultConnectionInfo :: ConnectionInfo
 defaultConnectionInfo =
   { host: "localhost"
@@ -68,8 +64,6 @@ defaultConnectionInfo =
   , multipleStatements : false
   }
 
-
-
 queryWithOptions
   :: forall a
    . ReadForeign a
@@ -81,8 +75,6 @@ queryWithOptions opts vs conn = do
   rows <- _query opts vs conn
   either liftError pure  $ read rows
 
-
-
 queryWithOptions_
   :: forall a
    . ReadForeign a
@@ -90,8 +82,6 @@ queryWithOptions_
   -> Connection
   -> Aff (Array a)
 queryWithOptions_ opts = queryWithOptions opts []
-
-
 
 query
   :: forall a
@@ -102,8 +92,6 @@ query
   -> Aff (Array a)
 query sql = queryWithOptions { sql, nestTables: false }
 
-
-
 query_
   :: forall a
    . ReadForeign a
@@ -111,8 +99,6 @@ query_
   -> Connection
   -> Aff (Array a)
 query_ sql = query sql []
-
-
 
 execute
   :: String
@@ -122,15 +108,11 @@ execute
 execute sql vs conn =
   void $ _query { sql, nestTables: false } vs conn
 
-
-
 execute_
   :: String
   -> Connection
   -> Aff Unit
 execute_ sql = execute sql []
-
-
 
 _query
   :: QueryOptions
@@ -139,23 +121,15 @@ _query
   -> Aff Foreign
 _query opts values conn = fromEffectFnAff $ runFn3 _query' opts values conn
 
-
-
 foreign import createConnection
   :: ConnectionInfo
   -> Effect Connection
-
-
 
 foreign import closeConnection
   :: Connection
   -> Effect Unit
 
-
-
 foreign import _query'
   :: Fn3 QueryOptions (Array QueryValue) Connection (EffectFnAff Foreign)
-
-
 
 foreign import format :: String -> (Array QueryValue) -> Connection -> String

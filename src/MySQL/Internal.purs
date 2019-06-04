@@ -12,7 +12,5 @@ import Data.Newtype (unwrap)
 import Data.NonEmpty (head)
 import Foreign (ForeignError)
 
-
-
 liftError :: forall a. NonEmptyList ForeignError -> Aff a
 liftError = throwError <<< error <<< show <<< head <<< unwrap

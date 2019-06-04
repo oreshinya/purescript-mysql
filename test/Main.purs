@@ -12,8 +12,6 @@ import MySQL.Pool (closePool, createPool, defaultPoolInfo, withPool)
 import MySQL.QueryValue (toQueryValue)
 import MySQL.Transaction (withTransaction)
 
-
-
 type User =
   { id :: String
   , name :: String
@@ -21,11 +19,7 @@ type User =
   , updatedAt :: String
   }
 
-
-
 foreign import unsafeLog :: forall a. a -> Effect Unit
-
-
 
 ident :: String
 ident = "53f49285-a00e-46a6-b445-d25c49c228ba"
@@ -39,12 +33,8 @@ ident3 = "649d2782-e161-4170-a1d7-cf65afdfc985"
 ident4 :: String
 ident4 = "45572d57-d4e5-411b-b6b6-ab6a1a8df5f9"
 
-
-
 connectionInfo :: ConnectionInfo
 connectionInfo = defaultConnectionInfo { database = "purescript_mysql", debug = true }
-
-
 
 main :: Effect Unit
 main = do
