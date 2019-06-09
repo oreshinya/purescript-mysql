@@ -9,14 +9,17 @@ module MySQL.Pool
 
 import Prelude
 
+import Data.Function.Uncurried (Fn2, runFn2)
 import Effect (Effect)
 import Effect.Aff (Aff)
 import Effect.Aff.Compat (EffectFnAff, fromEffectFnAff)
-import Data.Function.Uncurried (Fn2, runFn2)
+import Foreign (Foreign)
 import MySQL.Connection (ConnectionInfo, Connection)
+import MySQL.Milliseconds (Milliseconds(..))
+import Simple.JSON (write)
 
 type PoolInfo =
-  { acquireTimeout :: Int
+  { acquireTimeout :: Milliseconds
   , waitForConnections :: Boolean
   , connectionLimit :: Int
   , queueLimit :: Int
@@ -26,14 +29,17 @@ foreign import data Pool :: Type
 
 defaultPoolInfo :: PoolInfo
 defaultPoolInfo =
-  { acquireTimeout: 10000
+  { acquireTimeout: Milliseconds 10000.0
   , waitForConnections: true
   , connectionLimit: 10
   , queueLimit: 0
   }
 
 createPool :: ConnectionInfo -> PoolInfo -> Effect Pool
-createPool = runFn2 _createPool
+createPool cinfo pinfo =
+  runFn2 _createPool
+    (write cinfo)
+    (write pinfo)
 
 getConnection :: Pool -> Aff Connection
 getConnection = fromEffectFnAff <<< _getConnection
@@ -52,7 +58,7 @@ withPool handler pool = do
   releaseConnection conn
   pure r
 
-foreign import _createPool :: Fn2 ConnectionInfo PoolInfo (Effect Pool)
+foreign import _createPool :: Fn2 Foreign Foreign (Effect Pool)
 
 foreign import closePool :: Pool -> Effect Unit
 

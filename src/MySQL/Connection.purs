@@ -16,15 +16,16 @@ module MySQL.Connection
 
 import Prelude
 
+import Data.Either (either)
+import Data.Function.Uncurried (Fn3, runFn3)
 import Effect (Effect)
 import Effect.Aff (Aff)
 import Effect.Aff.Compat (EffectFnAff, fromEffectFnAff)
-import Data.Either (either)
-import Data.Function.Uncurried (Fn3, runFn3)
 import Foreign (Foreign)
 import MySQL.Internal (liftError)
+import MySQL.Milliseconds (Milliseconds(..))
 import MySQL.QueryValue (QueryValue)
-import Simple.JSON (class ReadForeign, read)
+import Simple.JSON (class ReadForeign, read, write)
 
 type ConnectionInfo =
     { host :: String
@@ -34,7 +35,7 @@ type ConnectionInfo =
     , database :: String
     , charset :: String
     , timezone :: String
-    , connectTimeout :: Int
+    , connectTimeout :: Milliseconds
     , dateStrings :: Boolean
     , debug :: Boolean
     , trace :: Boolean
@@ -57,7 +58,7 @@ defaultConnectionInfo =
   , database: ""
   , charset: "UTF8_GENERAL_CI"
   , timezone: "Z"
-  , connectTimeout: 10000
+  , connectTimeout: Milliseconds 10000.0
   , dateStrings: true
   , debug: false
   , trace: true
@@ -121,8 +122,13 @@ _query
   -> Aff Foreign
 _query opts values conn = fromEffectFnAff $ runFn3 _query' opts values conn
 
-foreign import createConnection
+createConnection
   :: ConnectionInfo
+  -> Effect Connection
+createConnection = write >>> _createConnection
+
+foreign import _createConnection
+  :: Foreign
   -> Effect Connection
 
 foreign import closeConnection
