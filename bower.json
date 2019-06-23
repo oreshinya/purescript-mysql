@@ -26,7 +26,7 @@
   "dependencies": {
     "purescript-js-date": "^6.0.0",
     "purescript-aff": "^5.0.2",
-    "purescript-simple-json": "^6.0.0"
+    "purescript-simple-json": "^7.0.0"
   },
   "devDependencies": {
     "purescript-console": "^4.2.0"
