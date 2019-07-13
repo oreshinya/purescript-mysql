@@ -15,6 +15,6 @@
     "bower": "^1.8.8",
     "mysql": "^2.17.1",
     "pulp": "^13.0.0",
-    "purescript": "^0.13.0"
+    "purs-bin-simple": "^0.3.0"
   }
 }
