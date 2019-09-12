@@ -2,11 +2,11 @@ module Test.Main where
 
 import Prelude
 
+import Data.Either (Either(..))
 import Effect (Effect)
 import Effect.Aff (Aff, runAff)
 import Effect.Class.Console (log)
 import Effect.Exception (message)
-import Data.Either (Either(..))
 import MySQL.Connection (Connection, ConnectionInfo, defaultConnectionInfo, queryWithOptions, query_, execute_, format)
 import MySQL.Pool (closePool, createPool, defaultPoolInfo, withPool)
 import MySQL.QueryValue (toQueryValue)
@@ -52,6 +52,7 @@ main = do
       --  execute_ ("INSERT INTO users (id, name) VALUES ('" <> ident4 <> "', 'User 4')") conn
       --  execute_ ("INSERT INTO users (id, name) VALUES ('" <> ident <> "', 'User 5')") conn
       log $ format "INSERT INTO users (id, name) VALUES (?, ?)" [ toQueryValue ident, toQueryValue "User 6"] conn
+      log $ format "INSERT INTO users (id, name) VALUES ?" [ toQueryValue [ [ "100", "User 100" ], [ "200", "User 200" ] ] ] conn
       pure users
     where
       opts =

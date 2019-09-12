@@ -4,6 +4,8 @@ module MySQL.QueryValue
   , toQueryValue
   ) where
 
+import Prelude
+
 import Data.Maybe (Maybe(..))
 import Data.JSDate (JSDate)
 import Unsafe.Coerce (unsafeCoerce)
@@ -28,5 +30,8 @@ instance queryableMaybe :: Queryable a => Queryable (Maybe a) where
 
 instance queryableJSDate :: Queryable JSDate where
   toQueryValue = unsafeCoerce
+
+instance queryableArray :: Queryable a => Queryable (Array a) where
+  toQueryValue xs = unsafeCoerce $ toQueryValue <$> xs
 
 foreign import null :: QueryValue
