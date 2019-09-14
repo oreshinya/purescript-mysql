@@ -1,5 +1,8 @@
 module MySQL.Transaction
   ( withTransaction
+  , begin
+  , commit
+  , rollback
   ) where
 
 import Prelude
