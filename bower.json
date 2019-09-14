@@ -29,6 +29,7 @@
     "purescript-simple-json": "^7.0.0"
   },
   "devDependencies": {
-    "purescript-console": "^4.2.0"
+    "purescript-test-unit": "^15.0.0",
+    "purescript-uuid": "^6.0.0"
   }
 }
