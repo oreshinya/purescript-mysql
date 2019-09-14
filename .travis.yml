@@ -1,0 +1,11 @@
+node_js:
+  - "node"
+language: node_js
+before_install:
+  - mysql -uroot < migration.sql
+install:
+  - npm i
+script:
+  - npm test
+services:
+  - mysql
