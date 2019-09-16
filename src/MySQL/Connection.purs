@@ -9,6 +9,7 @@ module MySQL.Connection
   , query_
   , execute
   , execute_
+  , _query
   , format
   , createConnection
   , closeConnection
