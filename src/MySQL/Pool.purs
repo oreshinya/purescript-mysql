@@ -4,6 +4,8 @@ module MySQL.Pool
   , defaultPoolInfo
   , createPool
   , closePool
+  , getConnection
+  , releaseConnection
   , withPool
   ) where
 
