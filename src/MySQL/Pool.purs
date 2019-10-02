@@ -11,9 +11,11 @@ module MySQL.Pool
 
 import Prelude
 
+import Control.Monad.Error.Class (throwError)
+import Data.Either (Either(..))
 import Data.Function.Uncurried (Fn2, runFn2)
 import Effect (Effect)
-import Effect.Aff (Aff)
+import Effect.Aff (Aff, attempt)
 import Effect.Aff.Compat (EffectFnAff, fromEffectFnAff)
 import Foreign (Foreign)
 import MySQL.Connection (ConnectionInfo, Connection)
@@ -56,9 +58,11 @@ withPool
   -> Aff a
 withPool handler pool = do
   conn <- getConnection pool
-  r <- handler conn
+  r <- attempt $ handler conn
   releaseConnection conn
-  pure r
+  case r of
+    Left err -> throwError err
+    Right r' -> pure r'
 
 foreign import _createPool :: Fn2 Foreign Foreign (Effect Pool)
 
