@@ -10,7 +10,7 @@ import Effect (Effect)
 import Effect.Aff (attempt)
 import Effect.Class (liftEffect)
 import Effect.Exception (error)
-import MySQL.Connection (defaultConnectionInfo, execute, query)
+import MySQL.Connection (defaultConnectionInfo, execute, format, query)
 import MySQL.Pool (Pool, closePool, createPool, defaultPoolInfo, withPool)
 import MySQL.QueryValue (toQueryValue)
 import MySQL.Transaction (withTransaction)
@@ -29,8 +29,12 @@ main = run do
   pool <- liftEffect createPool'
 
   runTestWith runTest do
-    test "Queries" do
+    test "Format" do
+      formated <- flip withPool pool
+        $ liftEffect <<< format "SELECT * FROM users WHERE id = ?" [ toQueryValue "dummyId" ]
+      Assert.equal "SELECT * FROM users WHERE id = 'dummyId'" formated
 
+    test "Queries" do
       flip withPool pool \conn -> do
         userId <- liftEffect $ genUUID <#> toString
         let userName = "dummy_name_" <> userId

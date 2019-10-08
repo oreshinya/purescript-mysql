@@ -139,4 +139,8 @@ foreign import closeConnection
 foreign import _query'
   :: Fn3 QueryOptions (Array QueryValue) Connection (EffectFnAff Foreign)
 
-foreign import format :: String -> (Array QueryValue) -> Connection -> String
+foreign import format
+  :: String
+  -> Array QueryValue
+  -> Connection
+  -> Effect String

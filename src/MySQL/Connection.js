@@ -33,7 +33,9 @@ exports["_query'"] = function(opts, values, conn) {
 exports.format = function(query) {
   return function(values) {
     return function(conn) {
-      return conn.format(query, values);
+      return function() {
+        return conn.format(query, values);
+      }
     }
   }
 }
