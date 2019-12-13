@@ -4,6 +4,7 @@ import Prelude
 
 import Control.Monad.Error.Class (throwError)
 import Data.Either (isLeft)
+import Data.Maybe (Maybe(..))
 import Data.UUID (genUUID, toString)
 import Data.Unfoldable (replicateA)
 import Effect (Effect)
@@ -12,7 +13,7 @@ import Effect.Class (liftEffect)
 import Effect.Exception (error)
 import MySQL.Connection (defaultConnectionInfo, execute, format, query)
 import MySQL.Pool (Pool, closePool, createPool, defaultPoolInfo, withPool)
-import MySQL.QueryValue (toQueryValue)
+import MySQL.QueryValue (match, toQueryValue)
 import MySQL.Transaction (withTransaction)
 import Test.Unit (suite, test)
 import Test.Unit.Assert as Assert
@@ -29,6 +30,11 @@ main = run do
   pool <- liftEffect createPool'
 
   runTestWith runTest do
+    test "match" do
+      let x = toQueryValue [ [ toQueryValue 1, toQueryValue $ Just "2" ] ]
+      Assert.assert "Expected: same, Gotten: not same" $ match x x
+      Assert.assert "Expected: not same, Gotten: same" $ not $ match x
+        $ toQueryValue [ [ toQueryValue 1, toQueryValue $ Just "2" ] ]
     test "Format" do
       formated <- flip withPool pool
         $ liftEffect <<< format "SELECT * FROM users WHERE id = ?" [ toQueryValue "dummyId" ]
@@ -71,7 +77,7 @@ main = run do
           result <- attempt $ flip withTransaction conn \conn' -> do
             execute
               "INSERT INTO users (id, name) VALUES ?"
-              [ toQueryValue $ (xs <#> \x -> [ x.id, x.name ]) ]
+              [ toQueryValue $ (xs <#> \x -> [ toQueryValue x.id, toQueryValue x.name ]) ]
               conn'
             throwError $ error "Rollback Test"
           Assert.assert "Error was ignored" $ isLeft result

@@ -19,14 +19,14 @@ import Prelude
 
 import Data.Either (either)
 import Data.Function.Uncurried (Fn3, runFn3)
+import Data.Time.Duration (Milliseconds(..))
 import Effect (Effect)
 import Effect.Aff (Aff)
 import Effect.Aff.Compat (EffectFnAff, fromEffectFnAff)
 import Foreign (Foreign)
 import MySQL.Internal (liftError)
-import MySQL.Milliseconds (Milliseconds(..))
 import MySQL.QueryValue (QueryValue)
-import Simple.JSON (class ReadForeign, read, write)
+import Simple.JSON (class ReadForeign, read)
 
 type ConnectionInfo =
     { host :: String
@@ -123,13 +123,8 @@ _query
   -> Aff Foreign
 _query opts values conn = fromEffectFnAff $ runFn3 _query' opts values conn
 
-createConnection
+foreign import createConnection
   :: ConnectionInfo
-  -> Effect Connection
-createConnection = write >>> _createConnection
-
-foreign import _createConnection
-  :: Foreign
   -> Effect Connection
 
 foreign import closeConnection

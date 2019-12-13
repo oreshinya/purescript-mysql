@@ -14,13 +14,11 @@ import Prelude
 import Control.Monad.Error.Class (throwError)
 import Data.Either (Either(..))
 import Data.Function.Uncurried (Fn2, runFn2)
+import Data.Time.Duration (Milliseconds(..))
 import Effect (Effect)
 import Effect.Aff (Aff, attempt)
 import Effect.Aff.Compat (EffectFnAff, fromEffectFnAff)
-import Foreign (Foreign)
-import MySQL.Connection (ConnectionInfo, Connection)
-import MySQL.Milliseconds (Milliseconds(..))
-import Simple.JSON (write)
+import MySQL.Connection (Connection, ConnectionInfo)
 
 type PoolInfo =
   { acquireTimeout :: Milliseconds
@@ -40,10 +38,7 @@ defaultPoolInfo =
   }
 
 createPool :: ConnectionInfo -> PoolInfo -> Effect Pool
-createPool cinfo pinfo =
-  runFn2 _createPool
-    (write cinfo)
-    (write pinfo)
+createPool cinfo pinfo = runFn2 _createPool cinfo pinfo
 
 getConnection :: Pool -> Aff Connection
 getConnection = fromEffectFnAff <<< _getConnection
@@ -64,7 +59,7 @@ withPool handler pool = do
     Left err -> throwError err
     Right r' -> pure r'
 
-foreign import _createPool :: Fn2 Foreign Foreign (Effect Pool)
+foreign import _createPool :: Fn2 ConnectionInfo PoolInfo (Effect Pool)
 
 foreign import closePool :: Pool -> Effect Unit
 
