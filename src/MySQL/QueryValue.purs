@@ -16,6 +16,9 @@ foreign import data QueryValue :: Type
 class Queryable a where
   toQueryValue :: a -> QueryValue
 
+instance queryableQueryValue :: Queryable QueryValue where
+  toQueryValue = identity
+
 instance queryableString :: Queryable String where
   toQueryValue = unsafeCoerce
 

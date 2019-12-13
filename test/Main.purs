@@ -71,7 +71,7 @@ main = run do
           result <- attempt $ flip withTransaction conn \conn' -> do
             execute
               "INSERT INTO users (id, name) VALUES ?"
-              [ toQueryValue $ (xs <#> \x -> [ x.id, x.name ]) ]
+              [ toQueryValue $ (xs <#> \x -> [ toQueryValue x.id, toQueryValue x.name ]) ]
               conn'
             throwError $ error "Rollback Test"
           Assert.assert "Error was ignored" $ isLeft result
