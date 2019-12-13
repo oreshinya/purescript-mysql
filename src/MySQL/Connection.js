@@ -2,7 +2,7 @@
 
 const mysql = require('mysql');
 
-exports._createConnection = function(connectionInfo) {
+exports.createConnection = function(connectionInfo) {
   return function() {
     return mysql.createConnection(connectionInfo);
   }
