@@ -15,7 +15,7 @@ exports.closeConnection = function(connection) {
   }
 }
 
-exports["_query'"] = function(opts, values, conn) {
+exports._queryImpl = function(opts, values, conn) {
   return function(onError, onSuccess) {
     conn.query(opts, values, function(e, r) {
       if (e) {

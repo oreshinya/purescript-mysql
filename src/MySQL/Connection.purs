@@ -121,7 +121,7 @@ _query
   -> Array QueryValue
   -> Connection
   -> Aff Foreign
-_query opts values conn = fromEffectFnAff $ runFn3 _query' opts values conn
+_query opts values conn = fromEffectFnAff $ runFn3 _queryImpl opts values conn
 
 foreign import createConnection
   :: ConnectionInfo
@@ -131,7 +131,7 @@ foreign import closeConnection
   :: Connection
   -> Effect Unit
 
-foreign import _query'
+foreign import _queryImpl
   :: Fn3 QueryOptions (Array QueryValue) Connection (EffectFnAff Foreign)
 
 foreign import format
