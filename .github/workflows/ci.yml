@@ -1,0 +1,49 @@
+name: CI
+
+on: push
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      db:
+        image: mysql:5.7
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: true
+        options: --health-cmd "mysqladmin ping -h localhost" --health-interval 20s --health-timeout 10s --health-retries 10
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Setup nodejs
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12.21.0
+
+    - name: Cache npm modules
+      uses: actions/cache@v1
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-npm-
+
+    - name: Cache bower modules
+      uses: actions/cache@v1
+      with:
+        path: bower_components
+        key: ${{ runner.os }}-deps-${{ hashFiles('bower.json') }}
+        restore-keys: |
+          ${{ runner.os }}-deps-
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Init DB
+      run: mysql -h 127.0.0.1 -uroot < migration.sql
+
+    - name: Test
+      run: npm test
