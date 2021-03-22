@@ -5,7 +5,6 @@ import Prelude
 import Control.Monad.Error.Class (throwError)
 import Data.Either (isLeft)
 import Data.Maybe (Maybe(..))
-import Data.UUID (genUUID, toString)
 import Data.Unfoldable (replicateA)
 import Effect (Effect)
 import Effect.Aff (attempt)
@@ -15,6 +14,7 @@ import MySQL.Connection (defaultConnectionInfo, execute, format, query)
 import MySQL.Pool (Pool, closePool, createPool, defaultPoolInfo, withPool)
 import MySQL.QueryValue (match, toQueryValue)
 import MySQL.Transaction (withTransaction)
+import Simple.ULID (genULID, toString)
 import Test.Unit (suite, test)
 import Test.Unit.Assert as Assert
 import Test.Unit.Main (run, runTestWith)
@@ -42,7 +42,7 @@ main = run do
 
     test "Queries" do
       flip withPool pool \conn -> do
-        userId <- liftEffect $ genUUID <#> toString
+        userId <- liftEffect $ genULID <#> toString
         let userName = "dummy_name_" <> userId
         execute
           "INSERT INTO users (id, name) VALUES (?, ?)"
@@ -60,7 +60,7 @@ main = run do
       test "Commit" do
         flip withPool pool \conn -> do
           xs <- liftEffect $ replicateA 2
-            $ genUUID <#> toString <#> \id -> { id, name: "dummy_name_" <> id }
+            $ genULID <#> toString <#> \id -> { id, name: "dummy_name_" <> id }
           flip withTransaction conn $ execute
             "INSERT INTO users (id, name) VALUES ?"
             [ toQueryValue $ (xs <#> \x -> [ x.id, x.name ]) ]
@@ -73,7 +73,7 @@ main = run do
       test "Rollback" do
         flip withPool pool \conn -> do
           (xs :: Array User) <- liftEffect $ replicateA 2
-            $ genUUID <#> toString <#> \id -> { id, name: "dummy_name_" <> id }
+            $ genULID <#> toString <#> \id -> { id, name: "dummy_name_" <> id }
           result <- attempt $ flip withTransaction conn \conn' -> do
             execute
               "INSERT INTO users (id, name) VALUES ?"

@@ -12,12 +12,10 @@
     "pulp:login": "pulp login"
   },
   "dependencies": {
-    "bower": "^1.8.8",
+    "bower": "^1.8.12",
     "mysql": "^2.18.1",
-    "pulp": "^14.0.0",
-    "purescript": "^0.13.6",
-    "purescript-psa": "^0.7.3",
-    "uuid": "^3.3.3",
-    "uuid-validate": "0.0.3"
+    "pulp": "^15.0.0",
+    "purescript": "^0.14.0",
+    "purescript-psa": "^0.8.2"
   }
 }
