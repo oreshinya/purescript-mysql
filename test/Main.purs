@@ -2,84 +2,97 @@ module Test.Main where
 
 import Prelude
 
+import Control.Monad.Error.Class (throwError)
+import Data.Either (isLeft)
+import Data.Maybe (Maybe(..))
+import Data.Unfoldable (replicateA)
 import Effect (Effect)
-import Effect.Aff (Aff, runAff)
-import Effect.Class.Console (log)
-import Effect.Exception (message)
-import Data.Either (Either(..))
-import MySQL.Connection (Connection, ConnectionInfo, defaultConnectionInfo, queryWithOptions, query_, execute_, format)
-import MySQL.Pool (closePool, createPool, defaultPoolInfo, withPool)
-import MySQL.QueryValue (toQueryValue)
+import Effect.Aff (attempt)
+import Effect.Class (liftEffect)
+import Effect.Exception (error)
+import MySQL.Connection (defaultConnectionInfo, execute, format, query)
+import MySQL.Pool (Pool, closePool, createPool, defaultPoolInfo, withPool)
+import MySQL.QueryValue (match, toQueryValue)
 import MySQL.Transaction (withTransaction)
-
-
+import Simple.ULID (genULID, toString)
+import Test.Unit (suite, test)
+import Test.Unit.Assert as Assert
+import Test.Unit.Main (run, runTestWith)
+import Test.Unit.Output.Fancy (runTest)
 
 type User =
   { id :: String
   , name :: String
-  , createdAt :: String
-  , updatedAt :: String
   }
 
-
-
-foreign import unsafeLog :: forall a. a -> Effect Unit
-
-
-
-ident :: String
-ident = "53f49285-a00e-46a6-b445-d25c49c228ba"
-
-ident2 :: String
-ident2 = "192fea9b-c657-4420-af76-718702bd2846"
-
-ident3 :: String
-ident3 = "649d2782-e161-4170-a1d7-cf65afdfc985"
-
-ident4 :: String
-ident4 = "45572d57-d4e5-411b-b6b6-ab6a1a8df5f9"
-
-
-
-connectionInfo :: ConnectionInfo
-connectionInfo = defaultConnectionInfo { database = "purescript_mysql", debug = true }
-
-
-
 main :: Effect Unit
-main = do
-  pool <- createPool connectionInfo defaultPoolInfo
-  void $ runAff (callback pool) do
-    flip withPool pool \conn -> do
-      execute_ "TRUNCATE TABLE users" conn
-      execute_ ("INSERT INTO users (id, name) VALUES ('" <> ident <> "', 'User 1')") conn
-      void $ selectUsers conn
-      flip withTransaction conn \c -> do
-        execute_ ("INSERT INTO users (id, name) VALUES ('" <> ident2 <> "', 'User 2')") conn
-        execute_ ("INSERT INTO users (id, name) VALUES ('" <> ident3 <> "', 'User 3')") conn
-      users <- selectUsers' conn
-      --flip withTransaction conn \c -> do
-      --  execute_ ("INSERT INTO users (id, name) VALUES ('" <> ident4 <> "', 'User 4')") conn
-      --  execute_ ("INSERT INTO users (id, name) VALUES ('" <> ident <> "', 'User 5')") conn
-      log $ format "INSERT INTO users (id, name) VALUES (?, ?)" [ toQueryValue ident, toQueryValue "User 6"] conn
-      pure users
-    where
-      opts =
-        { sql: "SELECT * FROM users WHERE id = ?"
-        , nestTables: false
-        }
+main = run do
+  pool <- liftEffect createPool'
 
-      selectUsers :: Connection -> Aff (Array User)
-      selectUsers = queryWithOptions opts [ toQueryValue ident ]
+  runTestWith runTest do
+    test "match" do
+      let x = toQueryValue [ [ toQueryValue 1, toQueryValue $ Just "2" ] ]
+      Assert.assert "Expected: same, Gotten: not same" $ match x x
+      Assert.assert "Expected: not same, Gotten: same" $ not $ match x
+        $ toQueryValue [ [ toQueryValue 1, toQueryValue $ Just "2" ] ]
+    test "Format" do
+      formated <- flip withPool pool
+        $ liftEffect <<< format "SELECT * FROM users WHERE id = ?" [ toQueryValue "dummyId" ]
+      Assert.equal "SELECT * FROM users WHERE id = 'dummyId'" formated
 
-      selectUsers' :: Connection -> Aff (Array User)
-      selectUsers' = query_ "SELECT * FROM users"
+    test "Queries" do
+      flip withPool pool \conn -> do
+        userId <- liftEffect $ genULID <#> toString
+        let userName = "dummy_name_" <> userId
+        execute
+          "INSERT INTO users (id, name) VALUES (?, ?)"
+          [ toQueryValue userId, toQueryValue userName ]
+          conn
+        users <- query
+          "SELECT * FROM users WHERE id = ?"
+          [ toQueryValue userId ]
+          conn
+        Assert.equal
+          [ { id: userId, name: userName } ]
+          users
 
-      callback pool (Left err) = do
-        log ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-        log $ message err
-        closePool pool
+    suite "Transaction" do
+      test "Commit" do
+        flip withPool pool \conn -> do
+          xs <- liftEffect $ replicateA 2
+            $ genULID <#> toString <#> \id -> { id, name: "dummy_name_" <> id }
+          flip withTransaction conn $ execute
+            "INSERT INTO users (id, name) VALUES ?"
+            [ toQueryValue $ (xs <#> \x -> [ x.id, x.name ]) ]
+          users <- query
+            "SELECT * FROM users WHERE id IN (?) ORDER BY FIELD(id, ?)"
+            [ toQueryValue $ xs <#> _.id, toQueryValue $ xs <#> _.id ]
+            conn
+          Assert.equal xs users
 
-      callback pool (Right users) = do
-        unsafeLog users
-        closePool pool
+      test "Rollback" do
+        flip withPool pool \conn -> do
+          (xs :: Array User) <- liftEffect $ replicateA 2
+            $ genULID <#> toString <#> \id -> { id, name: "dummy_name_" <> id }
+          result <- attempt $ flip withTransaction conn \conn' -> do
+            execute
+              "INSERT INTO users (id, name) VALUES ?"
+              [ toQueryValue $ (xs <#> \x -> [ toQueryValue x.id, toQueryValue x.name ]) ]
+              conn'
+            throwError $ error "Rollback Test"
+          Assert.assert "Error was ignored" $ isLeft result
+          users <- query
+            "SELECT * FROM users WHERE id IN (?) ORDER BY FIELD(id, ?)"
+            [ toQueryValue $ xs <#> _.id, toQueryValue $ xs <#> _.id ]
+            conn
+          Assert.equal ([] :: Array User) users
+
+  liftEffect $ closePool pool
+
+createPool' :: Effect Pool
+createPool' = createPool connInfo defaultPoolInfo
+  where
+    connInfo = defaultConnectionInfo
+      { host = "127.0.0.1"
+      , database = "purescript_mysql"
+      }

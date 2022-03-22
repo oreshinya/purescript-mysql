@@ -12,7 +12,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/oreshinya/purescript-mysql.git"
+    "url": "https://github.com/oreshinya/purescript-mysql"
   },
   "moduleType": [
     "node"
@@ -24,11 +24,12 @@
     "output"
   ],
   "dependencies": {
-    "purescript-js-date": "^6.0.0",
-    "purescript-aff": "^5.0.2",
-    "purescript-simple-json": "^5.0.0"
+    "purescript-js-date": "^7.0.0",
+    "purescript-aff": "^6.0.0",
+    "purescript-simple-json": "^8.0.0"
   },
   "devDependencies": {
-    "purescript-console": "^4.2.0"
+    "purescript-test-unit": "^16.0.0",
+    "purescript-simple-ulid": "https://github.com/oreshinya/purescript-simple-ulid.git#v2.0.0"
   }
 }
