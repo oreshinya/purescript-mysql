@@ -44,10 +44,13 @@ main = run do
       flip withPool pool \conn -> do
         userId <- liftEffect $ genULID <#> toString
         let userName = "dummy_name_" <> userId
-        execute
+        insertId <- query
           "INSERT INTO users (id, name) VALUES (?, ?)"
           [ toQueryValue userId, toQueryValue userName ]
           conn
+        Assert.equal
+          { insertId: 0 }
+          insertId
         users <- query
           "SELECT * FROM users WHERE id = ?"
           [ toQueryValue userId ]
@@ -59,7 +62,7 @@ main = run do
     suite "Transaction" do
       test "Commit" do
         flip withPool pool \conn -> do
-          xs <- liftEffect $ replicateA 2
+          (xs :: Array User) <- liftEffect $ replicateA 2
             $ genULID <#> toString <#> \id -> { id, name: "dummy_name_" <> id }
           flip withTransaction conn $ execute
             "INSERT INTO users (id, name) VALUES ?"

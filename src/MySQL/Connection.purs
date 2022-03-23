@@ -72,7 +72,7 @@ queryWithOptions
   => QueryOptions
   -> Array QueryValue
   -> Connection
-  -> Aff (Array a)
+  -> Aff a
 queryWithOptions opts vs conn = do
   rows <- _query opts vs conn
   either liftError pure  $ read rows
@@ -82,7 +82,7 @@ queryWithOptions_
    . ReadForeign a
   => QueryOptions
   -> Connection
-  -> Aff (Array a)
+  -> Aff a
 queryWithOptions_ opts = queryWithOptions opts []
 
 query
@@ -91,7 +91,7 @@ query
   => String
   -> Array QueryValue
   -> Connection
-  -> Aff (Array a)
+  -> Aff a
 query sql = queryWithOptions { sql, nestTables: false }
 
 query_
@@ -99,7 +99,7 @@ query_
    . ReadForeign a
   => String
   -> Connection
-  -> Aff (Array a)
+  -> Aff a
 query_ sql = query sql []
 
 execute
