@@ -31,6 +31,7 @@ import Simple.JSON (class ReadForeign, read)
 type ConnectionInfo =
     { host :: String
     , port :: Int
+    , socketPath :: String
     , user :: String
     , password :: String
     , database :: String
@@ -54,6 +55,7 @@ defaultConnectionInfo :: ConnectionInfo
 defaultConnectionInfo =
   { host: "localhost"
   , port: 3306
+  , socketPath: ""
   , user: "root"
   , password: ""
   , database: ""
