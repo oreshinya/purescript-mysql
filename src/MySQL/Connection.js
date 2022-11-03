@@ -1,21 +1,21 @@
 'use strict';
 
-const mysql = require('mysql');
+import mysql from "mysql";
 
-exports.createConnection = function(connectionInfo) {
+export function createConnection(connectionInfo) {
   return function() {
     return mysql.createConnection(connectionInfo);
   }
 }
 
-exports.closeConnection = function(connection) {
+export function closeConnection(connection) {
   return function() {
     connection.end();
     return {};
   }
 }
 
-exports._queryImpl = function(opts, values, conn) {
+export function queryImpl(opts, values, conn) {
   return function(onError, onSuccess) {
     conn.query(opts, values, function(e, r) {
       if (e) {
@@ -30,7 +30,7 @@ exports._queryImpl = function(opts, values, conn) {
   }
 }
 
-exports.format = function(query) {
+export function format(query) {
   return function(values) {
     return function(conn) {
       return function() {

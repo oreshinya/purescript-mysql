@@ -1,8 +1,9 @@
 'use strict';
 
-exports['null'] = null;
+const nullImpl = null;
+export { nullImpl as null }
 
-exports.match = function(a) {
+export function match(a) {
   return function(b) {
     return a === b;
   }

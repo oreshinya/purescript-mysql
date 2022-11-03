@@ -24,12 +24,12 @@
     "output"
   ],
   "dependencies": {
-    "purescript-js-date": "^7.0.0",
-    "purescript-aff": "^6.0.0",
-    "purescript-simple-json": "^8.0.0"
+    "purescript-js-date": "^8.0.0",
+    "purescript-aff": "^7.1.0",
+    "purescript-simple-json": "^9.0.0"
   },
   "devDependencies": {
-    "purescript-test-unit": "^16.0.0",
-    "purescript-simple-ulid": "https://github.com/oreshinya/purescript-simple-ulid.git#v2.0.0"
+    "purescript-test-unit": "^17.0.0",
+    "purescript-simple-ulid": "https://github.com/oreshinya/purescript-simple-ulid.git#v3.0.0"
   }
 }

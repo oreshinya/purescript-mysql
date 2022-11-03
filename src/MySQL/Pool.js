@@ -1,8 +1,8 @@
 'use strict';
 
-const mysql = require('mysql');
+import mysql from "mysql";
 
-exports._createPool = function(connectionInfo, poolInfo) {
+export function _createPool(connectionInfo, poolInfo) {
   return function() {
     const opts = Object.assign(
       {},
@@ -13,14 +13,14 @@ exports._createPool = function(connectionInfo, poolInfo) {
   }
 }
 
-exports.closePool = function(pool) {
+export function closePool(pool) {
   return function() {
     pool.end();
     return {};
   }
 }
 
-exports._getConnection = function(pool) {
+export function _getConnection(pool) {
   return function(onError, onSuccess) {
     pool.getConnection(function(e, conn) {
       if (e) {
@@ -35,7 +35,7 @@ exports._getConnection = function(pool) {
   }
 }
 
-exports._releaseConnection = function(conn) {
+export function _releaseConnection(conn) {
   return function(onError, onSuccess) {
     conn.release();
     onSuccess({});

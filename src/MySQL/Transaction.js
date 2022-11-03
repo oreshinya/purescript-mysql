@@ -1,6 +1,6 @@
 'use strict';
 
-exports._begin = function(conn) {
+export function _begin(conn) {
   return function(onError, onSuccess) {
     conn.beginTransaction(function(e) {
       if (e) {
@@ -15,7 +15,7 @@ exports._begin = function(conn) {
   }
 }
 
-exports._commit = function(conn) {
+export function _commit(conn) {
   return function(onError, onSuccess) {
     conn.commit(function(e){
       if (e) {
@@ -30,7 +30,7 @@ exports._commit = function(conn) {
   }
 }
 
-exports._rollback = function(conn) {
+export function _rollback(conn) {
   return function(onError, onSuccess) {
     conn.rollback(function() {
       onSuccess({});
