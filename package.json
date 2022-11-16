@@ -2,12 +2,11 @@
   "private": true,
   "name": "purescript-mysql",
   "scripts": {
-    "postinstall": "bower install",
-    "bower": "bower",
+    "spago": "spago",
+    "watch": "spago build -w -u '--strict --stash --censor-lib --is-lib=.spago'",
     "clean": "rm -rf output",
-    "build": "pulp build",
-    "test": "pulp test",
-    "pulp:version": "pulp version",
+    "test": "spago -x test.dhall test -u '--strict --stash --censor-lib --is-lib=.spago'",
+    "bump-version": "LC_ALL=C.UTF-8 spago bump-version --no-dry-run",
     "pulp:publish": "pulp publish",
     "pulp:login": "pulp login"
   },
@@ -16,6 +15,7 @@
     "mysql": "^2.18.1",
     "pulp": "^16.0.2",
     "purescript": "^0.15.6",
-    "purescript-psa": "^0.8.2"
+    "purescript-psa": "^0.8.2",
+    "spago": "^0.20.9"
   }
 }
